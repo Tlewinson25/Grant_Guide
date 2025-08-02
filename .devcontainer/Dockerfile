@@ -15,10 +15,17 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends cmake \
     && apt-get -y install --no-install-recommends pandoc
 
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
-    curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list &&\
-    apt-get update && \
-    ACCEPT_EULA=Y apt-get install -y msodbcsql17
+    
+    RUN ARCH=$(uname -m) && \
+        if [ "$ARCH" = "x86_64" ]; then \
+            curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
+            curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
+            apt-get update && \
+            ACCEPT_EULA=Y apt-get install -y msodbcsql17; \
+        else \
+            echo "Skipping msodbcsql17 installation on ARM architecture."; \
+        fi
+    
 
 # [Optional] If your pip requirements rarely change, uncomment this section to add them to the image.
 #  COPY requirements.txt /tmp/pip-tmp/
